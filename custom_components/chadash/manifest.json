@@ -1,12 +1,14 @@
 {
   "domain": "chadash",
   "name": "Cha Dash",
-  "codeowners": ["@ban-red"],
+  "codeowners": [
+    "@ban-red"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/ban-red/cha-dash/blob/main/contrib/homeassistant/README.md",
+  "documentation": "https://github.com/ban-red/ha-chadash",
   "integration_type": "service",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/ban-red/cha-dash/issues",
+  "issue_tracker": "https://github.com/ban-red/ha-chadash/issues",
   "requirements": [],
   "version": "0.5.0"
 }

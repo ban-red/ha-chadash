@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly: Home Assistant's checks change, and so does the newest hub.
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The parser and URL rules, with the standard library only
+        run: python3 -I -m unittest discover -s tests
+
+  contract:
+    name: Against the newest Cha Dash
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Start Cha Dash on the Demo Home
+        run: |
+          docker run -d --name chadash -p 127.0.0.1:3696:3696 -e CHADASH_DEMO=true ghcr.io/ban-red/chadash:latest
+          for _ in $(seq 1 60); do curl -fs http://127.0.0.1:3696/healthz >/dev/null && exit 0; sleep 1; done
+          docker logs chadash
+          exit 1
+      - name: Read its summary as Home Assistant does
+        env:
+          CHADASH_CONTRACT_URL: http://127.0.0.1:3696
+        run: python3 -I -m unittest discover -s tests -v
+
+  hassfest:
+    name: Home Assistant's checks (hassfest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: home-assistant/actions/hassfest@86d4564712fa02543c808e3a693dd04f9d3f8361 # master
+
+  hacs:
+    name: HACS's checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hacs/action@d556e736723344f83838d08488c983a15381059a # 22.5.0
+        with:
+          category: integration
+          # Brand icons are a pull request to home-assistant/brands, still to do.
+          ignore: brands

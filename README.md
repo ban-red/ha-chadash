@@ -2,7 +2,7 @@
 
 A Home Assistant custom integration that reads Cha Dash: the home's health, its open problems and the updates waiting, as entities. It reads only; nothing here changes Cha Dash.
 
-It lives here until it moves to a repository of its own ([plan 15](../../docs/plan/15-v0.5.md), W4), so HACS can install it from there.
+[Cha Dash](https://github.com/ban-red/cha-dash) is a self-hosted homelab dashboard. This integration needs Cha Dash 0.5.0 or later, and Home Assistant 2024.11 or later.
 
 ## What you get
 
@@ -20,7 +20,7 @@ An acknowledged problem that's down leaves health at `attention`, not `down`: so
 ## Install
 
 1. In Cha Dash, **Settings → API tokens → New token**, with the **Inbox read** scope (`inbox.read`) and nothing else.
-2. Copy `custom_components/chadash` into Home Assistant's `config/custom_components/`, then restart Home Assistant.
+2. Install it with [HACS](https://hacs.xyz): **HACS → ⋮ → Custom repositories**, add `https://github.com/ban-red/ha-chadash` as an **Integration**, then download **Cha Dash** and restart Home Assistant. HACS offers each new release. Without HACS, copy `custom_components/chadash` into Home Assistant's `config/custom_components/` and restart.
 3. **Settings → Devices & services → Add integration → Cha Dash**, then give its address (`https://dash.example.home`) and the token. It takes https, or plain http only to a local IP address, since the token rides every request. When the token is revoked, Home Assistant asks for a new one.
 
 ## An automation
@@ -40,4 +40,16 @@ automation:
 
 ## Tests
 
-`python3 -m unittest discover -s tests` checks the summary parser with the standard library only. The Home Assistant parts are thin and follow Home Assistant's own coordinator pattern.
+`python3 -m unittest discover -s tests` checks the summary parser and the address rules with the standard library only. The Home Assistant parts are thin and follow Home Assistant's own coordinator pattern.
+
+With `CHADASH_CONTRACT_URL` set to a Cha Dash hub that hasn't been set up, the contract test claims it, makes an `inbox.read` token and reads `GET /api/summary` as the integration does. CI runs it against the newest Cha Dash image on the Demo Home, every push and weekly, beside Home Assistant's `hassfest` and HACS's own checks:
+
+```sh
+docker run -d --rm --name chadash -p 127.0.0.1:3696:3696 -e CHADASH_DEMO=true ghcr.io/ban-red/chadash:latest
+CHADASH_CONTRACT_URL=http://127.0.0.1:3696 python3 -m unittest discover -s tests
+docker rm -f chadash
+```
+
+## License
+
+AGPL-3.0-or-later, as Cha Dash. See [LICENSE](LICENSE).

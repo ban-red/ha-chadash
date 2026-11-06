@@ -19,10 +19,10 @@
       }
     },
     "error": {
-      "invalid_url": "Give the address with https://, like https://dash.home.example.",
+      "invalid_url": "Give Cha Dash's full address, starting with https and the host name.",
       "invalid_auth": "Cha Dash refused that token. It needs the inbox.read scope.",
       "cannot_connect": "Couldn't reach Cha Dash at that address.",
-      "insecure_url": "The token would travel unencrypted. Use https://, or http:// only to a local IP address."
+      "insecure_url": "The token would travel unencrypted. Use https, or plain http only to a local IP address."
     },
     "abort": {
       "already_configured": "This Cha Dash is already set up.",
